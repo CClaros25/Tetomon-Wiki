@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WikiPage - The Free Encyclopedia</title>
+    <title>Tetomon</title>
     <style>
         * {
             margin: 0;
@@ -21,6 +21,7 @@
             --link-visited: #0b0080;
             --card-bg: #ffffff;
             --header-bg: #f8f9fa;
+            --sidebar-bg: #ffffff;
         }
 
         [data-theme="dark"] {
@@ -33,6 +34,7 @@
             --link-visited: #9d8cff;
             --card-bg: #252525;
             --header-bg: #2d2d2d;
+            --sidebar-bg: #252525;
         }
 
         body {
@@ -50,6 +52,30 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-primary);
         }
 
         .logo {
@@ -59,23 +85,115 @@
         }
 
         .theme-toggle {
-            background: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            padding: 8px 16px;
-            border-radius: 4px;
             cursor: pointer;
-            color: var(--text-primary);
-            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.3s;
         }
 
         .theme-toggle:hover {
-            background-color: var(--bg-secondary);
+            transform: scale(1.1);
+        }
+
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-primary);
+        }
+
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            transition: left 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .close-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-primary);
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 16px;
+            display: block;
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+
+        .sidebar-nav a:hover {
+            color: var(--link-color);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
         .hero {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             background-color: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
         }
@@ -83,12 +201,6 @@
         .hero h1 {
             font-size: 48px;
             font-weight: 300;
-            margin-bottom: 10px;
-        }
-
-        .hero p {
-            font-size: 18px;
-            color: var(--text-secondary);
             margin-bottom: 30px;
         }
 
@@ -182,42 +294,6 @@
             line-height: 1.5;
         }
 
-        .categories {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .category-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 20px;
-            text-align: center;
-            transition: background-color 0.2s;
-            cursor: pointer;
-        }
-
-        .category-card:hover {
-            background-color: var(--bg-secondary);
-        }
-
-        .category-icon {
-            font-size: 36px;
-            margin-bottom: 10px;
-        }
-
-        .category-card h4 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .category-card p {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
         footer {
             background-color: var(--header-bg);
             border-top: 1px solid var(--border-color);
@@ -233,10 +309,6 @@
                 font-size: 36px;
             }
 
-            .hero p {
-                font-size: 16px;
-            }
-
             .featured-grid {
                 grid-template-columns: 1fr;
             }
@@ -244,86 +316,74 @@
     </style>
 </head>
 <body>
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Menu</div>
+            <button class="close-btn" onclick="toggleSidebar()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Featured Articles</a></li>
+            <li><a href="#">Recent Changes</a></li>
+            <li><a href="#">Random Article</a></li>
+            <li><a href="#">Categories</a></li>
+            <li><a href="#">Community</a></li>
+            <li><a href="#">Help</a></li>
+            <li><a href="#">About Tetomon</a></li>
+        </ul>
+    </aside>
+
     <header>
-        <div class="logo">📚 WikiPage</div>
+        <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebar()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M3 12h18M3 6h18M3 18h18" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="logo">Tetomon</div>
+        </div>
         <button class="theme-toggle" onclick="toggleTheme()">
-            <span id="theme-icon">🌙 Dark Mode</span>
+            <svg id="theme-icon" viewBox="0 0 24 24">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
         </button>
     </header>
 
     <section class="hero">
-        <h1>Welcome to WikiPage</h1>
-        <p>The free encyclopedia that anyone can edit</p>
+        <h1>Welcome to Tetomon</h1>
         <div class="search-box">
-            <input type="text" placeholder="Search WikiPage...">
+            <input type="text" placeholder="Search Tetomon...">
         </div>
     </section>
 
     <div class="container">
         <section>
-            <h2 class="section-title">Featured Articles</h2>
-            <div class="featured-grid">
-                <div class="card">
-                    <div class="card-image">[Image]</div>
-                    <h3><a href="#">Quantum Computing</a></h3>
-                    <p>Quantum computing is a type of computation that harnesses the collective properties of quantum states to perform calculations...</p>
-                </div>
-                <div class="card">
-                    <div class="card-image">[Image]</div>
-                    <h3><a href="#">Ancient Rome</a></h3>
-                    <p>Ancient Rome was a civilization that grew from a small agricultural community founded on the Italian Peninsula as early as the 10th century BC...</p>
-                </div>
-                <div class="card">
-                    <div class="card-image">[Image]</div>
-                    <h3><a href="#">Climate Change</a></h3>
-                    <p>Climate change refers to long-term shifts in temperatures and weather patterns, primarily caused by human activities since the 1800s...</p>
-                </div>
-            </div>
-        </section>
-
-        <section>
-            <h2 class="section-title">Browse by Category</h2>
-            <div class="categories">
-                <div class="category-card">
-                    <div class="category-icon">🔬</div>
-                    <h4>Science</h4>
-                    <p>Explore scientific topics</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon">🎨</div>
-                    <h4>Arts</h4>
-                    <p>Discover art and culture</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon">📜</div>
-                    <h4>History</h4>
-                    <p>Learn about the past</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon">💻</div>
-                    <h4>Technology</h4>
-                    <p>Latest in tech</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon">🌍</div>
-                    <h4>Geography</h4>
-                    <p>Explore the world</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon">⚽</div>
-                    <h4>Sports</h4>
-                    <p>Athletic achievements</p>
-                </div>
+            <h2 class="section-title">Recent Changes</h2>
+            <div id="recent-changes" class="featured-grid">
+                <p style="text-align: center; color: var(--text-secondary); grid-column: 1 / -1;">Loading recent changes...</p>
             </div>
         </section>
     </div>
 
     <footer>
-        <p>© 2025 WikiPage. All text is available under free licenses.</p>
+        <p>© 2025 Tetomon. All text is available under free licenses.</p>
         <p>Privacy Policy • Terms of Use • Contact Us</p>
     </footer>
 
     <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
         function toggleTheme() {
             const html = document.documentElement;
             const themeIcon = document.getElementById('theme-icon');
@@ -331,12 +391,145 @@
             
             if (currentTheme === 'dark') {
                 html.removeAttribute('data-theme');
-                themeIcon.textContent = '🌙 Dark Mode';
+                themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
             } else {
                 html.setAttribute('data-theme', 'dark');
-                themeIcon.textContent = '☀️ Light Mode';
+                themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
             }
         }
+
+        // Fetch recent changes from GitHub
+        async function loadRecentChanges() {
+            const container = document.getElementById('recent-changes');
+            
+            const GITHUB_USER = 'CClaros25';
+            const GITHUB_REPO = 'Tetomon-Wiki';
+            const GITHUB_BRANCH = 'main';
+            
+            try {
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/commits?sha=${GITHUB_BRANCH}&per_page=20`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch commits');
+                }
+                
+                const commits = await response.json();
+                
+                // Get unique HTML files that were changed
+                const htmlFiles = new Map();
+                
+                for (const commit of commits) {
+                    const filesResponse = await fetch(commit.url);
+                    const commitData = await filesResponse.json();
+                    
+                    if (commitData.files) {
+                        commitData.files.forEach(file => {
+                            // Exclude .css, .js files and index.html
+                            const isHtml = file.filename.endsWith('.html');
+                            const isNotIndex = file.filename !== 'index.html' && !file.filename.endsWith('/index.html');
+                            const isNotCss = !file.filename.endsWith('.css');
+                            const isNotJs = !file.filename.endsWith('.js');
+                            
+                            if (isHtml && isNotIndex && isNotCss && isNotJs && !htmlFiles.has(file.filename)) {
+                                htmlFiles.set(file.filename, {
+                                    filename: file.filename,
+                                    date: new Date(commit.commit.author.date),
+                                    message: commit.commit.message,
+                                    author: commit.commit.author.name,
+                                    sha: commit.sha
+                                });
+                            }
+                        });
+                    }
+                }
+                
+                // Display the files
+                if (htmlFiles.size === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1 / -1;">No recent HTML file changes found.</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                
+                // Fetch title and description for each HTML file
+                for (const file of htmlFiles.values()) {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    const timeAgo = getTimeAgo(file.date);
+                    const pageTitle = file.filename.replace('.html', '').replace(/-/g, ' ').replace(/^\w/, c => c.toUpperCase());
+                    
+                    // Try to fetch the actual HTML content to get title and description
+                    try {
+                        const contentResponse = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${file.filename}`);
+                        const htmlContent = await contentResponse.text();
+                        
+                        // Extract title from HTML
+                        const titleMatch = htmlContent.match(/<title[^>]*>([^<]+)<\/title>/i);
+                        const extractedTitle = titleMatch ? titleMatch[1] : pageTitle;
+                        
+                        // Extract first paragraph or meta description
+                        const metaMatch = htmlContent.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i);
+                        const pMatch = htmlContent.match(/<p[^>]*>([^<]+)<\/p>/i);
+                        const description = metaMatch ? metaMatch[1] : (pMatch ? pMatch[1].substring(0, 150) + '...' : 'No description available.');
+                        
+                        card.innerHTML = `
+                            <div class="card-image">📄 HTML</div>
+                            <h3><a href="${file.filename}">${extractedTitle}</a></h3>
+                            <p>${description}</p>
+                            <p style="font-size: 12px; margin-top: 10px; color: var(--text-secondary);">
+                                Modified ${timeAgo} by ${file.author}
+                            </p>
+                        `;
+                    } catch (error) {
+                        // Fallback if we can't fetch content
+                        card.innerHTML = `
+                            <div class="card-image">📄 HTML</div>
+                            <h3><a href="${file.filename}">${pageTitle}</a></h3>
+                            <p>${file.message}</p>
+                            <p style="font-size: 12px; margin-top: 10px; color: var(--text-secondary);">
+                                Modified ${timeAgo} by ${file.author}
+                            </p>
+                        `;
+                    }
+                    
+                    container.appendChild(card);
+                }
+                
+            } catch (error) {
+                console.error('Error loading recent changes:', error);
+                container.innerHTML = `
+                    <p style="text-align: center; color: var(--text-secondary); grid-column: 1 / -1;">
+                        Unable to load recent changes. Please check your GitHub repository settings.
+                    </p>
+                `;
+            }
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+            
+            for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / secondsInUnit);
+                if (interval >= 1) {
+                    return `${interval} ${unit}${interval === 1 ? '' : 's'} ago`;
+                }
+            }
+            
+            return 'just now';
+        }
+
+        // Load recent changes when page loads
+        window.addEventListener('DOMContentLoaded', loadRecentChanges);
     </script>
 </body>
 </html>
