@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="This is an example article page for the Tetomon wiki.">
+    <title>Example Article - Tetomon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-sidebar: #f8f9fa;
+            --text-primary: #202122;
+            --text-secondary: #54595d;
+            --border-color: #a2a9b1;
+            --link-color: #0645ad;
+            --link-visited: #0b0080;
+            --header-bg: #f8f9fa;
+            --sidebar-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-sidebar: #252525;
+            --text-primary: #e8e8e8;
+            --text-secondary: #a2a9b1;
+            --border-color: #3a3a3a;
+            --link-color: #6b9eff;
+            --link-visited: #9d8cff;
+            --header-bg: #2d2d2d;
+            --sidebar-bg: #252525;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-primary);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-primary);
+        }
+
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            transition: left 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .close-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-primary);
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 16px;
+            display: block;
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+
+        .sidebar-nav a:hover {
+            color: var(--link-color);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .toc-sidebar {
+            width: 250px;
+            flex-shrink: 0;
+        }
+
+        .toc {
+            background-color: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 4px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .toc-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .toc a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            flex: 1;
+            background-color: var(--bg-primary);
+        }
+
+        h1 {
+            font-size: 32px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        h2 {
+            font-size: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: 400;
+        }
+
+        h3 {
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+
+        a:visited {
+            color: var(--link-visited);
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .infobox {
+            float: right;
+            width: 280px;
+            margin: 0 0 15px 15px;
+            background-color: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .infobox-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .infobox-image {
+            width: 100%;
+            height: 180px;
+            background-color: var(--bg-secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .infobox table {
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .infobox td {
+            padding: 4px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .infobox td:first-child {
+            font-weight: bold;
+            width: 40%;
+        }
+
+        .recipe-box {
+            background-color: #c6c6c6;
+            border: 3px solid #373737;
+            border-bottom-color: #fff;
+            border-right-color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            max-width: 500px;
+            image-rendering: pixelated;
+        }
+
+        [data-theme="dark"] .recipe-box {
+            background-color: #c6c6c6;
+        }
+
+        .recipe-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #3f3f3f;
+            text-shadow: 1px 1px 0px #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .crafting-grid {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .grid-3x3 {
+            display: grid;
+            grid-template-columns: repeat(3, 64px);
+            grid-template-rows: repeat(3, 64px);
+            gap: 0;
+            background-color: #8b8b8b;
+            padding: 8px;
+            border: 2px solid #373737;
+            border-bottom-color: #fff;
+            border-right-color: #fff;
+        }
+
+        .grid-slot {
+            width: 64px;
+            height: 64px;
+            background-color: #8b8b8b;
+            border: 2px solid #373737;
+            border-top-color: #000;
+            border-left-color: #000;
+            border-bottom-color: #fff;
+            border-right-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            position: relative;
+            box-shadow: inset -2px -2px 0px rgba(0,0,0,0.2);
+        }
+
+        .grid-slot.empty {
+            background-color: #8b8b8b;
+        }
+
+        .arrow {
+            font-size: 48px;
+            color: #3f3f3f;
+            font-weight: bold;
+        }
+
+        .result-slot {
+            width: 80px;
+            height: 80px;
+            background-color: #8b8b8b;
+            border: 2px solid #373737;
+            border-top-color: #000;
+            border-left-color: #000;
+            border-bottom-color: #fff;
+            border-right-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 56px;
+            box-shadow: inset -2px -2px 0px rgba(0,0,0,0.2);
+        }
+
+        footer {
+            background-color: var(--header-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 30px 20px;
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .toc-sidebar {
+                width: 100%;
+            }
+
+            .infobox {
+                float: none;
+                width: 100%;
+                margin: 0 0 15px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Menu</div>
+            <button class="close-btn" onclick="toggleSidebar()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#">Featured Articles</a></li>
+            <li><a href="#">Recent Changes</a></li>
+            <li><a href="#">Random Article</a></li>
+            <li><a href="#">Categories</a></li>
+            <li><a href="#">Community</a></li>
+            <li><a href="#">Help</a></li>
+            <li><a href="#">About Tetomon</a></li>
+        </ul>
+    </aside>
+
+    <header>
+        <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebar()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M3 12h18M3 6h18M3 18h18" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <a href="index.html" class="logo">Tetomon</a>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <svg id="theme-icon" viewBox="0 0 24 24">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+        </button>
+    </header>
+
+    <div class="container">
+        <aside class="toc-sidebar">
+            <nav class="toc">
+                <div class="toc-title">Contents</div>
+                <ul>
+                    <li><a href="#introduction">1 Introduction</a></li>
+                    <li><a href="#history">2 History</a></li>
+                    <li><a href="#characteristics">3 Characteristics</a></li>
+                    <li><a href="#significance">4 Significance</a></li>
+                    <li><a href="#references">5 References</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main>
+            <article>
+                <h1>Example Article Title</h1>
+
+                <div class="infobox">
+                    <div class="infobox-title">Quick Facts</div>
+                    <div class="infobox-image">[Image Placeholder]</div>
+                    <table>
+                        <tr>
+                            <td>Type</td>
+                            <td>Example</td>
+                        </tr>
+                        <tr>
+                            <td>Category</td>
+                            <td>Sample Category</td>
+                        </tr>
+                        <tr>
+                            <td>Date</td>
+                            <td>October 2025</td>
+                        </tr>
+                        <tr>
+                            <td>Status</td>
+                            <td>Active</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <section id="introduction">
+                    <p>This is an <strong>example article page</strong> for the Tetomon wiki. It demonstrates the standard layout and formatting that wiki articles should follow. The page includes a table of contents, an infobox with key information, and properly structured content sections.</p>
+                    
+                    <p>Articles should be well-organized with clear headings, properly cited sources, and informative content that helps readers understand the topic thoroughly. The design adapts to both light and dark modes for comfortable reading.</p>
+                </section>
+
+                <section id="history">
+                    <h2>History</h2>
+                    <p>This section would typically contain information about the historical background of the article's subject. It should provide context about how the topic developed over time and any significant milestones or events.</p>
+                    
+                    <h3>Early Development</h3>
+                    <p>Details about the early stages or origins of the subject would be included here. This helps readers understand where the topic came from and how it has evolved.</p>
+                    
+                    <h3>Modern Era</h3>
+                    <p>Information about recent developments and the current state of the topic. This section keeps the article relevant and up-to-date with the latest information.</p>
+                </section>
+
+                <section id="characteristics">
+                    <h2>Characteristics</h2>
+                    <p>This section describes the defining features, properties, or attributes of the article's subject. It should provide detailed information that helps readers understand what makes this topic unique or important.</p>
+                    
+                    <div class="recipe-box">
+                        <div class="recipe-title">Recipe</div>
+                        <div class="crafting-grid">
+                            <div class="grid-3x3">
+                                <div class="grid-slot">🧱</div>
+                                <div class="grid-slot">🧱</div>
+                                <div class="grid-slot">🧱</div>
+                                <div class="grid-slot">🔥</div>
+                                <div class="grid-slot">⚪</div>
+                                <div class="grid-slot">🔥</div>
+                                <div class="grid-slot">🧱</div>
+                                <div class="grid-slot">🔴</div>
+                                <div class="grid-slot">🧱</div>
+                            </div>
+                            <div class="arrow">→</div>
+                            <div class="result-slot">🟥</div>
+                        </div>
+                    </div>
+                    
+                    <h3>Key Features</h3>
+                    <p>A detailed list or description of the most important characteristics. This helps readers quickly grasp the essential aspects of the topic.</p>
+                    
+                    <h3>Notable Aspects</h3>
+                    <p>Additional interesting or important details that contribute to a comprehensive understanding of the subject matter.</p>
+                </section>
+
+                <section id="significance">
+                    <h2>Significance</h2>
+                    <p>This section explains why the topic is important or relevant. It may discuss the impact, influence, or importance of the subject in its field or in a broader context.</p>
+                    
+                    <p>Understanding the significance helps readers appreciate why this topic deserves dedicated coverage and how it relates to other concepts or real-world applications.</p>
+                </section>
+
+                <section id="references">
+                    <h2>References</h2>
+                    <p>In a complete article, this section would contain properly formatted citations and references to sources used in creating the article. This ensures credibility and allows readers to verify information or learn more.</p>
+                </section>
+            </article>
+        </main>
+    </div>
+
+    <footer>
+        <p>© 2025 Tetomon. All text is available under free licenses.</p>
+        <p>Privacy Policy • Terms of Use • Contact Us</p>
+    </footer>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = html.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                html.removeAttribute('data-theme');
+                themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+            }
+        }
+    </script>
+</body>
+</html>
