@@ -1,675 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Megastone used to mega evolve Greninja">
-    <title>Greninjite</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-sidebar: #f8f9fa;
-            --text-primary: #202122;
-            --text-secondary: #54595d;
-            --border-color: #a2a9b1;
-            --link-color: #0645ad;
-            --link-visited: #0b0080;
-            --header-bg: #f8f9fa;
-            --sidebar-bg: #ffffff;
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #2d2d2d;
-            --bg-sidebar: #252525;
-            --text-primary: #e8e8e8;
-            --text-secondary: #a2a9b1;
-            --border-color: #3a3a3a;
-            --link-color: #6b9eff;
-            --link-visited: #9d8cff;
-            --header-bg: #2d2d2d;
-            --sidebar-bg: #252525;
-        }
-
-        body {
-            font-family: 'Courier New', monospace;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        header {
-            background-color: var(--header-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 100;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .menu-btn svg {
-            width: 24px;
-            height: 24px;
-            stroke: var(--text-primary);
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--text-primary);
-            text-decoration: none;
-        }
-
-        .theme-toggle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        .theme-toggle svg {
-            width: 20px;
-            height: 20px;
-            fill: var(--text-primary);
-        }
-
-        .sidebar {
-            position: fixed;
-            left: -280px;
-            top: 0;
-            width: 280px;
-            height: 100vh;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
-            transition: left 0.3s ease;
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .sidebar.open {
-            left: 0;
-        }
-
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .sidebar-title {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-        }
-
-        .close-btn svg {
-            width: 24px;
-            height: 24px;
-            stroke: var(--text-primary);
-        }
-
-        .sidebar-nav {
-            list-style: none;
-        }
-
-        .sidebar-nav li {
-            margin-bottom: 15px;
-        }
-
-        .sidebar-nav a {
-            color: var(--text-primary);
-            text-decoration: none;
-            font-size: 16px;
-            display: block;
-            padding: 8px 0;
-            transition: color 0.2s;
-        }
-
-        .sidebar-nav a:hover {
-            color: var(--link-color);
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-            z-index: 999;
-        }
-
-        .overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .toc-sidebar {
-            width: 250px;
-            flex-shrink: 0;
-        }
-
-        .toc {
-            background-color: var(--bg-sidebar);
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 4px;
-            position: sticky;
-            top: 20px;
-        }
-
-        .toc-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .toc ul {
-            list-style: none;
-        }
-
-        .toc li {
-            margin: 8px 0;
-            font-size: 14px;
-        }
-
-        .toc a {
-            color: var(--link-color);
-            text-decoration: none;
-        }
-
-        .toc a:hover {
-            text-decoration: underline;
-        }
-
-        main {
-            flex: 1;
-            background-color: var(--bg-primary);
-        }
-
-        h1 {
-            font-size: 32px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            margin-bottom: 20px;
-            font-weight: 400;
-        }
-
-        h2 {
-            font-size: 24px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 4px;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-weight: 400;
-        }
-
-        h3 {
-            font-size: 18px;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        p {
-            margin-bottom: 15px;
-            color: var(--text-primary);
-        }
-
-        a {
-            color: var(--link-color);
-            text-decoration: none;
-        }
-
-        a:visited {
-            color: var(--link-visited);
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .infobox {
-            float: right;
-            width: 250px;
-            margin: 0 0 15px 15px;
-            background-color: var(--bg-sidebar);
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 4px;
-        }
-
-        .infobox-title {
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .infobox-image {
-            width: 100%;
-            background-color: var(--bg-secondary);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-        }
-
-        .infobox-image img {
-            display: block;
-            max-width: 100%;
-            height: auto;
-            object-fit: contain;
-            border-radius: 4px;
-        }
-
-        .infobox table {
-            width: 100%;
-            font-size: 14px;
-        }
-
-        .infobox td {
-            padding: 4px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .infobox td:first-child {
-            font-weight: bold;
-            width: 40%;
-        }
-
-        .recipe-box {
-            background-color: #c6c6c6;
-            border: 3px solid #373737;
-            border-bottom-color: #fff;
-            border-right-color: #fff;
-            padding: 20px;
-            margin: 20px 0;
-            max-width: 500px;
-            image-rendering: pixelated;
-        }
-
-        [data-theme="dark"] .recipe-box {
-            background-color: #c6c6c6;
-        }
-
-        .recipe-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            text-align: center;
-            color: #3f3f3f;
-            text-shadow: 1px 1px 0px #ffffff;
-            font-family: 'Courier New', monospace;
-        }
-
-        .crafting-grid {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 30px;
-        }
-
-        .grid-3x3 {
-            display: grid;
-            grid-template-columns: repeat(3, 64px);
-            grid-template-rows: repeat(3, 64px);
-            gap: 0;
-            background-color: #8b8b8b;
-            padding: 8px;
-            border: 2px solid #373737;
-            border-bottom-color: #fff;
-            border-right-color: #fff;
-        }
-
-        .grid-slot {
-            width: 64px;
-            height: 64px;
-            background-color: #8b8b8b;
-            border: 2px solid #373737;
-            border-top-color: #000;
-            border-left-color: #000;
-            border-bottom-color: #fff;
-            border-right-color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            position: relative;
-            box-shadow: inset -2px -2px 0px rgba(0,0,0,0.2);
-        }
-
-        .grid-slot.empty {
-            background-color: #8b8b8b;
-        }
-
-        .arrow {
-            font-size: 48px;
-            color: #3f3f3f;
-            font-weight: bold;
-        }
-
-        .result-slot {
-            width: 80px;
-            height: 80px;
-            background-color: #8b8b8b;
-            border: 2px solid #373737;
-            border-top-color: #000;
-            border-left-color: #000;
-            border-bottom-color: #fff;
-            border-right-color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 56px;
-            box-shadow: inset -2px -2px 0px rgba(0,0,0,0.2);
-        }
-
-        footer {
-            background-color: var(--header-bg);
-            border-top: 1px solid var(--border-color);
-            padding: 30px 20px;
-            margin-top: 60px;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-
-            .toc-sidebar {
-                width: 100%;
-            }
-
-            .infobox {
-                float: none;
-                width: 100%;
-                margin: 0 0 15px 0;
-            }
-          /* === Infobox Image Gallery (Wiki Style, Sidebar Fit) === */
-.infobox-image-gallery {
-  position: relative;
-  width: 100%;
-  max-width: 250px; /* Match TOC sidebar width */
-  margin: 0 auto 10px auto;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-/* Force images to always fit within infobox */
-.infobox-image-gallery img {
-  display: none;
-  width: 100%;         /* Fit horizontally */
-  height: auto;        /* Maintain aspect ratio */
-  max-width: 250px;    /* Match sidebar width */
-  max-height: 250px;   /* Prevent overly tall images */
-  object-fit: contain; /* Ensure no stretching or cropping */
-  background-color: var(--bg-secondary);
-}
-
-.infobox-image-gallery img.active {
-  display: block;
-}
-
-/* Arrows */
-.gallery-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.2s;
-}
-
-.gallery-nav:hover {
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.gallery-nav.prev {
-  left: 6px;
-}
-
-.gallery-nav.next {
-  right: 6px;
-}
-
-/* Caption below image */
-.gallery-caption {
-  text-align: center;
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-top: 6px;
-  font-style: italic;
-  width: 100%;
-  max-width: 250px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Megastone used to mega evolve Greninja">
+  <title>Greninjite</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="overlay" onclick="toggleSidebar()"></div>
+  <div class="overlay" onclick="toggleSidebar()"></div>
 
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-title">Menu</div>
-            <button class="close-btn" onclick="toggleSidebar()">
-                <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-        </div>
-        <ul class="sidebar-nav">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="#">Featured Articles</a></li>
-            <li><a href="#">Recent Changes</a></li>
-            <li><a href="#">Random Article</a></li>
-            <li><a href="#">Categories</a></li>
-            <li><a href="#">Community</a></li>
-            <li><a href="#">Help</a></li>
-            <li><a href="#">About Tetomon</a></li>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Menu</div>
+      <button class="close-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#">Featured Articles</a></li>
+      <li><a href="#">Recent Changes</a></li>
+      <li><a href="#">Random Article</a></li>
+      <li><a href="#">Categories</a></li>
+      <li><a href="#">Community</a></li>
+      <li><a href="#">Help</a></li>
+      <li><a href="#">About Tetomon</a></li>
+    </ul>
+  </aside>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <button class="menu-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <a href="index.html" class="logo">Tetomon</a>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <svg id="theme-icon" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <aside class="toc-sidebar">
+      <nav class="toc">
+        <div class="toc-title">Contents</div>
+        <ul>
+          <li><a href="#introduction">1 Introduction</a></li>
+          <li><a href="#recipe">2 Recipe</a></li>
         </ul>
+      </nav>
     </aside>
 
-    <header>
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M3 12h18M3 6h18M3 18h18" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-            <a href="index.html" class="logo">Tetomon</a>
+    <main>
+      <article>
+        <h1>Greninjite</h1>
+
+        <!-- Infobox -->
+        <div class="infobox">
+          <div class="infobox-title">Mega-Greninja</div>
+
+          <!-- Working Image Gallery -->
+          <div class="infobox-image-gallery">
+            <span class="gallery-nav prev">&#10094;</span>
+            <span class="gallery-nav next">&#10095;</span>
+
+            <img src="images/mega-greninja.png" alt="Mega Greninja" class="active">
+            <img src="images/mega-greninja2.png" alt="Mega Greninja (Battle Form)">
+            <img src="images/mega-greninja-shiny.png" alt="Mega Greninja (Shiny)">
+          </div>
+
+          <div class="gallery-caption">Mega Greninja</div>
+
+          <table>
+            <tr><td>Type</td><td><strong>Item</strong></td></tr>
+            <tr><td>Give Command</td><td>/give @s example</td></tr>
+          </table>
         </div>
-        <button class="theme-toggle" onclick="toggleTheme()">
-            <svg id="theme-icon" viewBox="0 0 24 24">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
-        </button>
-    </header>
 
-    <div class="container">
-        <aside class="toc-sidebar">
-            <nav class="toc">
-                <div class="toc-title">Contents</div>
-                <ul>
-                    <li><a href="#introduction">1 Introduction</a></li>
-                    <li><a href="#recipe">2 Recipe</a></li>
-                </ul>
-            </nav>
-        </aside>
+        <!-- Page Content -->
+        <section id="introduction">
+          <p>Greninjite is a Mega Stone added by the <strong>Z-A Megas Early</strong> mod for Cobblemon. It is used as a held item and transforms Greninja into his mega form.</p>
+        </section>
 
-        <main>
-            <article>
-                <h1>Example Article Title</h1>
+        <!-- Recipe Section -->
+        <section id="recipe">
+          <h2>Recipe</h2>
+          <div class="recipe-box">
+            <div class="crafting-recipe">
+              <img src="images/crafting-grid.png" alt="Crafting Grid" class="crafting-background">
 
-                <div class="infobox">
-  <div class="infobox-title">Mega-Greninja</div>
+              <!-- Crafting Inputs -->
+              <img src="images/item1.png" class="slot slot-1">
+              <img src="images/item2.png" class="slot slot-2">
+              <img src="images/item3.png" class="slot slot-3">
+              <img src="images/item4.png" class="slot slot-4">
+              <img src="images/item5.png" class="slot slot-5">
+              <img src="images/item6.png" class="slot slot-6">
+              <img src="images/item7.png" class="slot slot-7">
+              <img src="images/item8.png" class="slot slot-8">
+              <img src="images/item9.png" class="slot slot-9">
 
-  <div class="infobox-image-gallery">
-    <span class="gallery-nav prev">&#10094;</span>
-    <span class="gallery-nav next">&#10095;</span>
-
-    <img src="images/mega-greninja.png" alt="Mega Greninja" class="active">
-    <img src="images/mega-greninja2.png" alt="Mega Greninja (Battle Form)">
-    <img src="images/mega-greninja-shiny.png" alt="Mega Greninja (Shiny)">
+              <!-- Output -->
+              <img src="images/output.png" class="slot slot-output">
+            </div>
+          </div>
+        </section>
+      </article>
+    </main>
   </div>
 
-  <div class="gallery-caption">Mega Greninja</div>
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Tetomon. All text is available under free licenses.</p>
+    <p>Privacy Policy • Terms of Use • Contact Us</p>
+  </footer>
 
-  <table>
-    <tr>
-      <td>Type</td>
-      <td><strong>Item</strong></td>
-    </tr>
-    <tr>
-      <td>Give Command</td>
-      <td>/give @s example</td>
-    </tr>
-  </table>
-</div>
-
-                <section id="introduction">
-                    <p>Greninjite is a Mega stone added by the <strong>Z-A Megas Early</strong> mod for Cobblemon. It is used as a held item and transforms Greninja into his mega form.</p>
-                </section>
-
-                <section id="recipe">
-                    <h2>Recipe</h2>
-                    <div class="recipe-box">
-                        <div class="recipe-title">Recipe</div>
-                        <div class="crafting-grid">
-                            <div class="grid-3x3">
-                                <div class="grid-slot">🧱</div>
-                                <div class="grid-slot">🧱</div>
-                                <div class="grid-slot">🧱</div>
-                                <div class="grid-slot">🔥</div>
-                                <div class="grid-slot">⚪</div>
-                                <div class="grid-slot">🔥</div>
-                                <div class="grid-slot">🧱</div>
-                                <div class="grid-slot">🔴</div>
-                                <div class="grid-slot">🧱</div>
-                            </div>
-                            <div class="arrow">→</div>
-                            <div class="result-slot">🟥</div>
-                        </div>
-                    </div>
-                </section>
-                
-    <footer>
-        <p>© 2025 Tetomon. All text is available under free licenses.</p>
-        <p>Privacy Policy • Terms of Use • Contact Us</p>
-    </footer>
-
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.querySelector('.sidebar');
-            const overlay = document.querySelector('.overlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-        }
-
-        function toggleTheme() {
-            const html = document.documentElement;
-            const themeIcon = document.getElementById('theme-icon');
-            const currentTheme = html.getAttribute('data-theme');
-            
-            if (currentTheme === 'dark') {
-                html.removeAttribute('data-theme');
-                themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-            } else {
-                html.setAttribute('data-theme', 'dark');
-                themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-            }
-        }
-
-        const gallery = document.querySelector('.infobox-image-gallery');
-const images = gallery.querySelectorAll('img');
-const caption = document.querySelector('.gallery-caption');
-let current = 0;
-
-function showImage(index) {
-  images.forEach(img => img.classList.remove('active'));
-  current = (index + images.length) % images.length;
-  images[current].classList.add('active');
-  caption.textContent = images[current].alt;
-}
-
-gallery.querySelector('.next').addEventListener('click', () => showImage(current + 1));
-gallery.querySelector('.prev').addEventListener('click', () => showImage(current - 1));
-    </script>
+  <script src="script.js"></script>
 </body>
 </html>
