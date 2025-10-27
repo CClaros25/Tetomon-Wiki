@@ -453,13 +453,20 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  max-width: 250px; /* matches TOC sidebar width */
+  margin: 0 auto;
 }
 
 .infobox-image-gallery img {
+  display: block;
+  width: 100%;
+  height: auto;
   max-width: 100%;
+  object-fit: contain;
   border-radius: 4px;
   cursor: pointer;
   transition: transform 0.2s;
+  image-rendering: auto; /* keeps natural image quality */
 }
 
 .infobox-image-gallery img:hover {
