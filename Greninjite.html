@@ -447,97 +447,70 @@
                 width: 100%;
                 margin: 0 0 15px 0;
             }
-            /* === Image Gallery === */
+            /* === Infobox Image Gallery (Wiki Style, In-place Switcher) === */
 .infobox-image-gallery {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  max-width: 250px; /* fits TOC sidebar width */
-  margin: 0 auto;
+  position: relative;
+  width: 100%;
+  max-width: 250px; /* match TOC sidebar */
+  margin: 0 auto 10px auto;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
 }
 
 .infobox-image-gallery img {
-  display: block;
+  display: none;
   width: 100%;
   height: auto;
-  max-width: 100%;
   object-fit: contain;
   border-radius: 4px;
-  cursor: pointer;
-  transition: transform 0.2s;
-  image-rendering: auto;
 }
 
-.infobox-image-gallery img:hover {
-  transform: scale(1.05);
+.infobox-image-gallery img.active {
+  display: block;
 }
 
-/* === Lightbox Preview === */
-.image-lightbox {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  z-index: 2000;
-}
-
-.image-lightbox.active {
-  display: flex;
-}
-
-.image-lightbox img {
-  max-width: 90%;
-  max-height: 80%;
-  border-radius: 6px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  background: #fff;
-}
-
-.image-lightbox .filename {
-  color: #fff;
-  font-family: 'Courier New', monospace;
-  margin-top: 15px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 6px 12px;
-  border-radius: 4px;
-}
-
-/* Navigation buttons */
-.image-lightbox .nav-btn {
+/* Navigation arrows inside image box */
+.gallery-nav {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  color: #fff;
-  font-size: 48px;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   user-select: none;
-  padding: 10px 20px;
+  transition: background 0.2s;
 }
 
-.image-lightbox .prev {
-  left: 20px;
+.gallery-nav:hover {
+  background: rgba(255, 255, 255, 0.9);
 }
 
-.image-lightbox .next {
-  right: 20px;
+.gallery-nav.prev {
+  left: 6px;
 }
 
-.image-lightbox .close {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  font-size: 40px;
-  cursor: pointer;
+.gallery-nav.next {
+  right: 6px;
 }
 
-
+/* Small filename/caption under image */
+.gallery-caption {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  font-style: italic;
+}
         }
     </style>
 </head>
@@ -597,23 +570,30 @@
                 <h1>Example Article Title</h1>
 
                 <div class="infobox">
-                    <div class="infobox-title">Mega-Greninja</div>
-                    <div class="infobox-image-gallery">
-                    <img src="images/mega-greninja.png">
-                    <img src="images/mega-greninja2.png">
-                    <img src="images/mega-greninja-shiny.png">
-                </div>
-                    <table>
-                        <tr>
-                            <td>Type</td>
-                            <td><strong>Item</strong></td>
-                        </tr>
-                        <tr>
-                            <td>Give Command</td>
-                            <td>/give @s example</td>
-                        </tr>
-                    </table>
-                </div>
+  <div class="infobox-title">Mega-Greninja</div>
+
+  <div class="infobox-image-gallery">
+    <span class="gallery-nav prev">&#10094;</span>
+    <span class="gallery-nav next">&#10095;</span>
+
+    <img src="images/mega-greninja.png" alt="Mega Greninja" class="active">
+    <img src="images/mega-greninja2.png" alt="Mega Greninja (Battle Form)">
+    <img src="images/mega-greninja-shiny.png" alt="Mega Greninja (Shiny)">
+  </div>
+
+  <div class="gallery-caption">Mega Greninja</div>
+
+  <table>
+    <tr>
+      <td>Type</td>
+      <td><strong>Item</strong></td>
+    </tr>
+    <tr>
+      <td>Give Command</td>
+      <td>/give @s example</td>
+    </tr>
+  </table>
+</div>
 
                 <section id="introduction">
                     <p>Greninjite is a Mega stone added by the <strong>Z-A Megas Early</strong> mod for Cobblemon. It is used as a held item and transforms Greninja into his mega form.</p>
@@ -667,66 +647,21 @@
                 themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
             }
         }
-  const galleryImages = document.querySelectorAll('.infobox-image-gallery img');
-  const lightbox = document.createElement('div');
-  lightbox.classList.add('image-lightbox');
-  lightbox.innerHTML = `
-    <span class="close">&times;</span>
-    <span class="nav-btn prev">&#10094;</span>
-    <img src="" alt="">
-    <div class="filename"></div>
-    <span class="nav-btn next">&#10095;</span>
-  `;
-  document.body.appendChild(lightbox);
 
-  const lightboxImg = lightbox.querySelector('img');
-  const filenameText = lightbox.querySelector('.filename');
-  let currentIndex = 0;
+        const gallery = document.querySelector('.infobox-image-gallery');
+const images = gallery.querySelectorAll('img');
+const caption = document.querySelector('.gallery-caption');
+let current = 0;
 
-  function openLightbox(index) {
-    currentIndex = index;
-    const img = galleryImages[currentIndex];
-    lightboxImg.src = img.src;
-    filenameText.textContent = img.alt || img.src.split('/').pop();
-    lightbox.classList.add('active');
-  }
+function showImage(index) {
+  images.forEach(img => img.classList.remove('active'));
+  current = (index + images.length) % images.length;
+  images[current].classList.add('active');
+  caption.textContent = images[current].alt;
+}
 
-  function closeLightbox() {
-    lightbox.classList.remove('active');
-  }
-
-  function nextImage() {
-    currentIndex = (currentIndex + 1) % galleryImages.length;
-    openLightbox(currentIndex);
-  }
-
-  function prevImage() {
-    currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
-    openLightbox(currentIndex);
-  }
-
-  galleryImages.forEach((img, i) => {
-    img.addEventListener('click', () => openLightbox(i));
-  });
-
-  lightbox.querySelector('.close').addEventListener('click', closeLightbox);
-  lightbox.querySelector('.next').addEventListener('click', nextImage);
-  lightbox.querySelector('.prev').addEventListener('click', prevImage);
-
-  // Close on overlay click
-  lightbox.addEventListener('click', e => {
-    if (e.target === lightbox) closeLightbox();
-  });
-
-  // Keyboard controls
-  document.addEventListener('keydown', e => {
-    if (!lightbox.classList.contains('active')) return;
-    if (e.key === 'ArrowRight') nextImage();
-    if (e.key === 'ArrowLeft') prevImage();
-    if (e.key === 'Escape') closeLightbox();
-  });
-
-
+gallery.querySelector('.next').addEventListener('click', () => showImage(current + 1));
+gallery.querySelector('.prev').addEventListener('click', () => showImage(current - 1));
     </script>
 </body>
 </html>
