@@ -312,6 +312,88 @@
             .featured-grid {
                 grid-template-columns: 1fr;
             }
+
+        .infobox-image-gallery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.infobox-image-gallery img {
+  max-width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.infobox-image-gallery img:hover {
+  transform: scale(1.05);
+}
+
+/* === Lightbox Preview === */
+.image-lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 2000;
+}
+
+.image-lightbox.active {
+  display: flex;
+}
+
+.image-lightbox img {
+  max-width: 90%;
+  max-height: 80%;
+  border-radius: 6px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  background: #fff;
+}
+
+.image-lightbox .filename {
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  margin-top: 15px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+/* Navigation buttons */
+.image-lightbox .nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 48px;
+  cursor: pointer;
+  user-select: none;
+  padding: 10px 20px;
+}
+
+.image-lightbox .prev {
+  left: 20px;
+}
+
+.image-lightbox .next {
+  right: 20px;
+}
+
+.image-lightbox .close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 40px;
+  cursor: pointer;
+}    
         }
     </style>
 </head>
@@ -530,6 +612,65 @@
 
         // Load recent changes when page loads
         window.addEventListener('DOMContentLoaded', loadRecentChanges);
+
+        const galleryImages = document.querySelectorAll('.infobox-image-gallery img');
+  const lightbox = document.createElement('div');
+  lightbox.classList.add('image-lightbox');
+  lightbox.innerHTML = `
+    <span class="close">&times;</span>
+    <span class="nav-btn prev">&#10094;</span>
+    <img src="" alt="">
+    <div class="filename"></div>
+    <span class="nav-btn next">&#10095;</span>
+  `;
+  document.body.appendChild(lightbox);
+
+  const lightboxImg = lightbox.querySelector('img');
+  const filenameText = lightbox.querySelector('.filename');
+  let currentIndex = 0;
+
+  function openLightbox(index) {
+    currentIndex = index;
+    const img = galleryImages[currentIndex];
+    lightboxImg.src = img.src;
+    filenameText.textContent = img.alt || img.src.split('/').pop();
+    lightbox.classList.add('active');
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+  }
+
+  function nextImage() {
+    currentIndex = (currentIndex + 1) % galleryImages.length;
+    openLightbox(currentIndex);
+  }
+
+  function prevImage() {
+    currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+    openLightbox(currentIndex);
+  }
+
+  galleryImages.forEach((img, i) => {
+    img.addEventListener('click', () => openLightbox(i));
+  });
+
+  lightbox.querySelector('.close').addEventListener('click', closeLightbox);
+  lightbox.querySelector('.next').addEventListener('click', nextImage);
+  lightbox.querySelector('.prev').addEventListener('click', prevImage);
+
+  // Close on overlay click
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  // Keyboard controls
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'Escape') closeLightbox();
+  });
     </script>
 </body>
 </html>
